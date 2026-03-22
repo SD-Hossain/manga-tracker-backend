@@ -2,39 +2,52 @@
 
 export async function fetchFromMangaDex(title) {
   try {
-    // 1. Added order[relevance]=desc to get the best match first
     const res = await fetch(
       `https://api.mangadex.org/manga?title=${encodeURIComponent(title)}&limit=1&includes[]=cover_art&order[relevance]=desc`
     );
 
     const json = await res.json();
     
-    // Check if we actually got data back
     if (!json.data || json.data.length === 0) return null;
 
     const manga = json.data[0];
     const attributes = manga.attributes;
-
-    // 2. Extract description (prioritizing English)
     const desc = attributes.description?.en ?? "No description available.";
 
-    // 3. Extract Cover Art (using the relationship data we included)
     const coverArt = manga.relationships.find(r => r.type === "cover_art");
     const fileName = coverArt?.attributes?.fileName;
-    const coverUrl = fileName
-      ? `https://uploads.mangadex.org/covers/${manga.id}/${fileName}`
-      : null;
+    
+    let coverDataUri = null;
 
-    // 4. Extract Genres (Tags)
+    if (fileName) {
+      // 1. Target the smaller file size to keep the Base64 payload light
+      const coverUrl = `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.512.jpg`;
+      
+      try {
+        // 2. Fetch the image server-side
+        const imageRes = await fetch(coverUrl);
+        const arrayBuffer = await imageRes.arrayBuffer();
+        
+        // 3. Convert to Base64 Data URI
+        const buffer = Buffer.from(arrayBuffer);
+        const base64 = buffer.toString('base64');
+        coverDataUri = `data:image/jpeg;base64,${base64}`;
+      } catch (imgErr) {
+        console.error("Failed to convert cover to Base64:", imgErr);
+        // Fallback to the raw URL just in case the buffer fails
+        coverDataUri = coverUrl; 
+      }
+    }
+
     const genres = attributes.tags
       ?.map(tag => tag.attributes?.name?.en)
       .filter(Boolean) || [];
 
     return {
       title: attributes.title?.en || Object.values(attributes.title || {})[0] || "Unknown Title",
-      coverUrl,
+      coverUrl: coverDataUri, // 4. Return the Base64 string instead of the raw URL
       description: desc,
-      releaseDate: attributes.year || null, // Added year while we're at it
+      releaseDate: attributes.year || null,
       totalChapters: attributes.lastChapter || null,
       latestChapter: null,
       genres: genres,
