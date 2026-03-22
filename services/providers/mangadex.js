@@ -40,13 +40,13 @@ export async function fetchFromMangaDex(title) {
 
     const fileName = coverArt?.attributes?.fileName;
 
+    const API_BASE = "https://manga-tracker-backend-pqmw.onrender.com/api";
+
     if (fileName) {
       const originalUrl = `https://uploads.mangadex.org/covers/${manga.id}/${fileName}`;
 
-      // ✅ Use backend proxy instead of direct link
-      coverUrl = `/api/mangadex-cover?url=${encodeURIComponent(originalUrl)}`;
+      coverUrl = `${API_BASE}/mangadex-cover?url=${encodeURIComponent(originalUrl)}`;
     }
-
     // ===============================
     // Genres
     // ===============================
