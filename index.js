@@ -25,7 +25,10 @@ const PORT = process.env.PORT || 4000;
 // ===============================
 
 app.use(cors({
-  origin: "http://localhost:3000",
+   origin: [
+    "http://localhost:3000",
+    "https://manga-tracker-lilac.vercel.app"
+  ],
   methods: ["GET", "POST", "PATCH", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
