@@ -58,7 +58,12 @@ app.get("/api/mangadex-cover", async (req, res) => {
       return res.status(403).send("Invalid image source");
     }
 
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0",
+        "Referer": "https://mangadex.org/"
+      }
+    });
 
     if (!response.ok) {
       return res.status(500).send("Failed to fetch image");
