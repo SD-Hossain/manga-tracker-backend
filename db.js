@@ -55,7 +55,9 @@ export const db = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
 
-  ssl: sslConfig
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 // ===============================
