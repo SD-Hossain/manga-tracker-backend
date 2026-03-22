@@ -43,6 +43,39 @@ app.use("/api", libraryRoutes);
 app.use("/api", mangaRoutes);
 app.use("/api", tagRoutes);
 app.use("/api/manga", mangaRoutes);
+// ===============================
+// MangaDex Cover Proxy
+// ===============================
+app.get("/api/mangadex-cover", async (req, res) => {
+  try {
+    const { url } = req.query;
+
+    if (!url) {
+      return res.status(400).send("Missing URL");
+    }
+
+    if (!url.includes("uploads.mangadex.org")) {
+      return res.status(403).send("Invalid image source");
+    }
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      return res.status(500).send("Failed to fetch image");
+    }
+
+    const buffer = await response.arrayBuffer();
+
+    res.set("Content-Type", "image/jpeg");
+    res.set("Cache-Control", "public, max-age=86400");
+
+    res.send(Buffer.from(buffer));
+
+  } catch (err) {
+    console.error("MangaDex proxy error:", err);
+    res.status(500).send("Proxy error");
+  }
+});
 app.use("/api", uploadRoutes);
 
 
