@@ -2,6 +2,7 @@ import { db } from "../db.js";
 import { fetchFromAniList } from "./providers/anilist.js";
 import { fetchFromKitsu } from "./providers/kitsu.js";
 import { fetchFromMangaDex } from "./providers/mangadex.js";
+import { fetchFromMangaUpdates } from "./providers/mangaupdates.js";
 
 
 /* =========================================================
@@ -74,11 +75,18 @@ async function fetchMetadataFromProviders(originalTitle) {
     fetchFromMangaDex(cleaned)
   ]);
 
-  const valid = results
-    .filter(r => r.status === "fulfilled" && r.value)
-    .map(r => normalizeProvider(r.value));
+  let valid = results
+  .filter(r => r.status === "fulfilled" && r.value)
+  .map(r => normalizeProvider(r.value));
 
-  if (!valid.length) return null;
+// 🔥 Fallback ONLY if nothing found
+if (!valid.length) {
+  const fallback = await fetchFromMangaUpdates(cleaned);
+
+  if (fallback) {
+    valid.push(normalizeProvider(fallback));
+  }
+}
 
   return mergeMetadata(valid);
 }
