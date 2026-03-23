@@ -359,7 +359,8 @@ export async function previewMetadata(title) {
   const results = await Promise.allSettled([
     fetchFromAniList(cleaned),
     fetchFromKitsu(cleaned),
-    fetchFromMangaDex(cleaned)
+    fetchFromMangaDex(cleaned),
+     fetchFromMangaUpdates(cleaned)
   ]);
 
   const valid = results
