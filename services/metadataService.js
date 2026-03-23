@@ -60,12 +60,6 @@ function normalizeTitle(title) {
     .toLowerCase();
 }
 
-function generateUniqueTitle(title) {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "")
-    .trim();
-}
 
 /* =========================================================
    METADATA AGGREGATION
@@ -89,11 +83,25 @@ async function fetchMetadataFromProviders(originalTitle) {
   return mergeMetadata(valid);
 }
 
+function safeDecode(text) {
+  if (!text) return text;
+
+  try {
+    // Only decode if looks encoded
+    if (text.includes("%")) {
+      return decodeURIComponent(text);
+    }
+    return text;
+  } catch {
+    return text; // fallback if decoding fails
+  }
+}
+
 export function normalizeProvider(raw) {
   return {
     title: raw.title ?? null,
     coverUrl: raw.coverUrl ?? null,
-    description: raw.description ?? null,
+    description: safeDecode(raw.description ?? null),
     releaseDate: raw.releaseDate ?? null,
     totalChapters: raw.totalChapters ?? null,
     latestChapter: raw.latestChapter ?? null,
