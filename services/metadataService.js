@@ -72,21 +72,17 @@ async function fetchMetadataFromProviders(originalTitle) {
   const results = await Promise.allSettled([
     fetchFromAniList(cleaned),
     fetchFromKitsu(cleaned),
-    fetchFromMangaDex(cleaned)
+    fetchFromMangaDex(cleaned),
+    fetchFromMangaUpdates(cleaned)
   ]);
 
-  let valid = results
-  .filter(r => r.status === "fulfilled" && r.value)
-  .map(r => normalizeProvider(r.value));
+  const valid = results
+    .filter(r => r.status === "fulfilled" && r.value)
+    .map(r => normalizeProvider(r.value));
 
-// 🔥 Fallback ONLY if nothing found
-if (!valid.length) {
-  const fallback = await fetchFromMangaUpdates(cleaned);
+    
 
-  if (fallback) {
-    valid.push(normalizeProvider(fallback));
-  }
-}
+  if (!valid.length) return null;
 
   return mergeMetadata(valid);
 }
