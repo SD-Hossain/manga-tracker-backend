@@ -1,7 +1,5 @@
 //services/providers/mangaupdates.js
 
-import fetch from "node-fetch";
-
 /* ===============================
    HELPERS
 =============================== */
