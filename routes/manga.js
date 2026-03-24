@@ -11,6 +11,7 @@ import {
 import { fetchFromAniList } from "../services/providers/anilist.js";
 import { fetchFromKitsu } from "../services/providers/kitsu.js";
 import { fetchFromMangaDex } from "../services/providers/mangadex.js";
+import { fetchFromMangaUpdates } from "../services/providers/mangaupdates.js";
 
 const router = express.Router();
 
@@ -228,7 +229,8 @@ router.get("/manga/:id/metadata-sources", requireAuth, async (req, res) => {
     const results = await Promise.allSettled([
       fetchFromAniList(title),
       fetchFromKitsu(title),
-      fetchFromMangaDex(title)
+      fetchFromMangaDex(title),
+      fetchFromMangaUpdates(title) 
     ]);
 
     const sources = {};

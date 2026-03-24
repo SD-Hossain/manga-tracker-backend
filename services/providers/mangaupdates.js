@@ -44,7 +44,12 @@ export async function fetchFromMangaUpdates(title) {
       // Map the genre objects to a simple array of strings
       genres: details.genres ? details.genres.map(g => g.genre) : [],
       status: details.status,
-      releaseDate: releaseDate
+      releaseDate: releaseDate,
+      totalChapters: null,
+      latestChapter: null,
+      images: [],
+
+      source: "MangaUpdates" 
     };
 
   } catch (error) {
